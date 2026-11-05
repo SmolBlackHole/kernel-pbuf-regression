@@ -1,0 +1,23 @@
+# Test section extracted from QEMU serial output.
+# kernel=6.8.12-pbuf-check arch=x86_64
+TAP version 13
+1..17
+not ok 1 - register resv=zero result=-22 expected=0
+not ok 2 - register resv=nonzero word=0 result=0 expected=-22
+not ok 3 - register resv=nonzero word=1 result=0 expected=-22
+not ok 4 - register resv=nonzero word=2 result=0 expected=-22
+not ok 5 - unregister resv=zero result=-22 expected=0
+not ok 6 - unregister resv=nonzero word=0 result=0 expected=-22
+not ok 7 - unregister resv=nonzero word=1 result=0 expected=-22
+not ok 8 - unregister resv=nonzero word=2 result=0 expected=-22
+not ok 9 - status resv=zero result=-22 expected=0
+not ok 10 - status resv=nonzero word=0 result=0 expected=-22
+not ok 11 - status resv=nonzero word=1 result=0 expected=-22
+not ok 12 - status resv=nonzero word=2 result=0 expected=-22
+not ok 13 - status resv=nonzero word=3 result=0 expected=-22
+not ok 14 - status resv=nonzero word=4 result=0 expected=-22
+not ok 15 - status resv=nonzero word=5 result=0 expected=-22
+not ok 16 - status resv=nonzero word=6 result=0 expected=-22
+not ok 17 - status resv=nonzero word=7 result=0 expected=-22
+# tests=17 failures=17 diagnostic_bootstraps=13
+VM_TEST_EXIT=1

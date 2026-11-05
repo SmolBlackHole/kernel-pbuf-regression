@@ -1,0 +1,36 @@
+From: Christian Andrej Görlach <cgoerlac@gmail.com>
+To: kernel-team@lists.ubuntu.com
+Subject: [SRU][N][PATCH 0/1] Fix provided-buffer-ring reserved-field validation
+
+BugLink: https://bugs.launchpad.net/bugs/2162843
+
+[Impact]
+Inverted reserved-field checks reject valid provided-buffer-ring
+registration, unregistration and status requests with EINVAL. Requests
+with nonzero reserved bytes pass the checks. Challenge submissions already
+work around the registration failure by setting reserved bits.
+
+[Fix]
+Remove the negation from the three memchr_inv() checks in io_uring/kbuf.c.
+The original upstream mem_is_zero() change is correct; this fixes its
+Ubuntu adaptation.
+
+[Test Plan]
+Run pbuf_reserved.c with 6.8 UAPI headers. All 17 checks must pass.
+The official 6.8.0-139-generic kernel fails all 17 checks in QEMU.
+Two kernels built from the same Ubuntu 6.8.0-139.139 source and minimal
+x86-64 configuration fail all 17 checks before the fix and pass all 17
+after it, using the same initramfs. Full generic builds are untested.
+The unmodified minimal build warns about unused err in init/do_mounts.c;
+the patched kbuf.c compiles without a new warning.
+
+[Where problems could occur]
+Applications relying on nonzero reserved fields as a workaround must
+submit valid zero-filled requests. Allocation and ring lifetime handling
+are unchanged.
+
+[Other Info]
+The patch applies to Noble 136, 139, 147 and 149 sources. Public master-next
+6dcf89bf9d1650d117680189bf4bbb596af7ab84 remains affected.
+Before sending: identify and compare the linux-bluefield fix recorded in
+LP #2162843 and obtain permission to send.

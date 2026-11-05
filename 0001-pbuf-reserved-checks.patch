@@ -1,0 +1,52 @@
+From: Christian Andrej Görlach <cgoerlac@gmail.com>
+Subject: [SRU][N][PATCH 1/1] UBUNTU: SAUCE: io_uring/kbuf: fix inverted reserved-field checks
+
+BugLink: https://bugs.launchpad.net/bugs/2162843
+
+The Noble adaptation of "io_uring/kbuf: use mem_is_zero()" substitutes
+memchr_inv() for mem_is_zero() without adjusting the negation. These
+helpers have opposite truth values for an all-zero area.
+
+As a result, valid provided-buffer-ring registration, unregistration
+and status requests fail with EINVAL, while nonzero reserved bytes
+are accepted by these checks.
+
+Remove the three negations to reject nonzero reserved bytes and accept
+valid zero-filled requests. This restores the original validation
+semantics without changing allocation or ring lifetime handling.
+
+Signed-off-by: Christian Andrej Görlach <cgoerlac@gmail.com>
+---
+ io_uring/kbuf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/io_uring/kbuf.c b/io_uring/kbuf.c
+--- a/io_uring/kbuf.c
++++ b/io_uring/kbuf.c
+@@ -549,7 +549,7 @@
+ 
+ 	if (copy_from_user(&reg, arg, sizeof(reg)))
+ 		return -EFAULT;
+-	if (!memchr_inv(reg.resv, 0, sizeof(reg.resv)))
++	if (memchr_inv(reg.resv, 0, sizeof(reg.resv)))
+ 		return -EINVAL;
+ 	if (reg.flags & ~IOU_PBUF_RING_MMAP)
+ 		return -EINVAL;
+@@ -608,7 +608,7 @@
+ 
+ 	if (copy_from_user(&reg, arg, sizeof(reg)))
+ 		return -EFAULT;
+-	if (!memchr_inv(reg.resv, 0, sizeof(reg.resv)) || reg.flags)
++	if (memchr_inv(reg.resv, 0, sizeof(reg.resv)) || reg.flags)
+ 		return -EINVAL;
+ 
+ 	bl = io_buffer_get_list(ctx, reg.bgid);
+@@ -629,7 +629,7 @@
+ 
+ 	if (copy_from_user(&buf_status, arg, sizeof(buf_status)))
+ 		return -EFAULT;
+-	if (!memchr_inv(buf_status.resv, 0, sizeof(buf_status.resv)))
++	if (memchr_inv(buf_status.resv, 0, sizeof(buf_status.resv)))
+ 		return -EINVAL;
+ 
+ 	bl = io_buffer_get_list(ctx, buf_status.buf_group);
