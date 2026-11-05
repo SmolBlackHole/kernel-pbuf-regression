@@ -19,7 +19,9 @@ still has it.
 
 [Bluefield `6.8.0-1035.40`](https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble/plain/io_uring/kbuf.c?h=Ubuntu-bluefield-6.8.0-1035.40)
 already has the same correction. Its `kbuf.c` matches the file this patch
-produces. I haven't identified the individual fix commit yet.
+produces. The [Bluefield log](https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble/log/?h=master-next)
+lists the existing fix as `1473fb4e7a3198b834878dce273d2311738a353a`,
+by Uri Dar.
 
 ## Run the reproducer
 
@@ -65,6 +67,10 @@ docker run --rm --cpus=8 --memory=10g \
 The script downloads the Ubuntu sources into `.work/`, checks their SHA256
 hashes and builds both versions. Downloads and binaries stay out of Git.
 
-The [Launchpad follow-up](launchpad-follow-up.md) and
-[Ubuntu SRU cover letter](0000-cover-letter.txt) are drafts. The next step is
-to identify the existing Bluefield fix commit before sending another patch.
+I submitted the reproducer, test logs and config in
+[Launchpad comment #21](https://bugs.launchpad.net/ubuntu/+source/linux-bluefield/+bug/2162843/comments/21),
+asking for the existing Bluefield fix to be carried to Noble `generic`.
+The [follow-up notes](launchpad-follow-up.md),
+[Ubuntu SRU cover letter](0000-cover-letter.txt) and
+[comparison patch](0001-pbuf-reserved-checks.patch) document the investigation.
+The cover letter and patch were not submitted separately.

@@ -1,4 +1,6 @@
-# Draft follow-up for LP #2162843
+# Follow-up notes for LP #2162843
+
+Results submitted in [comment #21](https://bugs.launchpad.net/ubuntu/+source/linux-bluefield/+bug/2162843/comments/21).
 
 I ran into this while working on a C++23 entry for the Twelve Dollar Server
 Challenge. Some entries already retry registration with nonzero reserved
@@ -34,8 +36,10 @@ I also checked [Bluefield tag `Ubuntu-bluefield-6.8.0-1035.40`](https://git.laun
 at release commit `f5285baaf0cbec83f2841e900a4f7cfaf5adf485`. Its corrected
 `kbuf.c` matches the file produced by these three changes.
 
-Could you point me to the individual fix commit and confirm whether it should
-be carried to Noble generic and Jammy HWE? I haven't checked Jammy's source.
+The [Bluefield log](https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble/log/?h=master-next)
+lists Uri Dar's fix as `1473fb4e7a3198b834878dce273d2311738a353a`.
+The follow-up asks for this existing fix to be carried to Noble generic.
+Jammy HWE may need the same follow-up; I haven't checked Jammy's source.
 
-Attachments: `pbuf_reserved.c`, the proposed patch,
+Attached as `launchpad-pbuf-tests.tar.gz`: `pbuf_reserved.c`,
 `results/unpatched.log`, `results/corrected.log` and `results/kernel.config`.

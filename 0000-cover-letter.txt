@@ -34,4 +34,10 @@ The patch applies to Noble 136, 139, 147 and 149 sources. Noble master-next
 Bluefield tag Ubuntu-bluefield-6.8.0-1035.40, at release commit
 f5285baaf0cbec83f2841e900a4f7cfaf5adf485, already contains this correction.
 Its kbuf.c matches the affected Noble file with these three changes.
-The individual fix commit still needs identifying so it can be reused.
+The Bluefield log lists the existing fix as
+1473fb4e7a3198b834878dce273d2311738a353a by Uri Dar.
+That commit can be reused for Noble generic.
+
+Test results were submitted in comment #21:
+https://bugs.launchpad.net/ubuntu/+source/linux-bluefield/+bug/2162843/comments/21
+This cover letter remains a draft.
