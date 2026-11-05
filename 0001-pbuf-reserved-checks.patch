@@ -3,17 +3,18 @@ Subject: [SRU][N][PATCH 1/1] UBUNTU: SAUCE: io_uring/kbuf: fix inverted reserved
 
 BugLink: https://bugs.launchpad.net/bugs/2162843
 
-The Noble adaptation of "io_uring/kbuf: use mem_is_zero()" substitutes
-memchr_inv() for mem_is_zero() without adjusting the negation. These
-helpers have opposite truth values for an all-zero area.
+The Noble backport of "io_uring/kbuf: use mem_is_zero()" replaced
+mem_is_zero() with memchr_inv() but kept the negation. The helpers have
+opposite results for an all-zero area.
 
-As a result, valid provided-buffer-ring registration, unregistration
-and status requests fail with EINVAL, while nonzero reserved bytes
-are accepted by these checks.
+This rejects valid buffer-ring registration, unregistration and status
+requests with EINVAL, and accepts requests with nonzero reserved bytes.
 
-Remove the three negations to reject nonzero reserved bytes and accept
-valid zero-filled requests. This restores the original validation
-semantics without changing allocation or ring lifetime handling.
+Remove the three negations to restore the original checks. Allocation
+and ring lifetime handling stay unchanged.
+
+The same correction is already in Ubuntu-bluefield-6.8.0-1035.40.
+Its corrected kbuf.c matches the Noble file with these three changes.
 
 Signed-off-by: Christian Andrej Görlach <cgoerlac@gmail.com>
 ---

@@ -1,23 +1,23 @@
 # Draft follow-up for LP #2162843
 
-I investigated this while developing a C++23 entry for the Twelve Dollar
-Server Challenge. Other entrants already retry registration with nonzero
-reserved fields: [kensac's Rust submission](https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/main/submissions/rust-iouring-kensac/src/main.rs#L62-L87)
-and [pavlyhalim's C submission](https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/main/submissions/c-iouring-pavlyhalim/src/sys.h).
-Both explicitly reference this bug.
+I ran into this while working on a C++23 entry for the Twelve Dollar Server
+Challenge. Some entries already retry registration with nonzero reserved
+fields: [kensac's Rust entry](https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/main/submissions/rust-iouring-kensac/src/main.rs#L62-L87)
+and [pavlyhalim's C entry](https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/main/submissions/c-iouring-pavlyhalim/src/sys.h).
+Both reference this bug.
 
-All three reserved-field checks in `io_uring/kbuf.c` are inverted:
+I checked all three reserved-field checks in `io_uring/kbuf.c`:
 `io_register_pbuf_ring()`, `io_unregister_pbuf_ring()` and
-`io_register_pbuf_status()`. Each uses `!memchr_inv(..., 0, ...)` where it
-needs `memchr_inv(..., 0, ...)`. This rejects valid zero-filled reserved
-fields and accepts nonzero ones. The upstream `172484907285` commit is correct;
-the inversion is in Ubuntu's adaptation.
+`io_register_pbuf_status()`. They use `!memchr_inv(..., 0, ...)` where they
+need `memchr_inv(..., 0, ...)`. Valid zero-filled fields are rejected;
+nonzero ones are accepted. The upstream `172484907285` change is correct.
+The inversion is in Ubuntu's adaptation.
 
-Official Noble source packages `136`, `139`, `147` and `149` contain identical
-affected `kbuf.c` files; `134` has correct validation. Public Noble master-next
-`6dcf89bf9d1650d117680189bf4bbb596af7ab84` still has the three inversions.
+Noble packages `136`, `139`, `147` and `149` have identical affected
+`kbuf.c` files; `134` has the correct checks. Noble master-next
+`6dcf89bf9d1650d117680189bf4bbb596af7ab84` still has the bug.
 
-The attached standalone reproducer uses raw syscalls and 6.8 UAPI headers:
+I tested a standalone reproducer using raw syscalls and 6.8 UAPI headers:
 
 | Kernel | Result |
 | --- | --- |
@@ -26,14 +26,16 @@ The attached standalone reproducer uses raw syscalls and 6.8 UAPI headers:
 | Custom build from Ubuntu `139`, unpatched | 17/17 fail |
 | Same source/config/initramfs, three negations removed | 17/17 pass |
 
-The custom builds use a minimal x86-64 QEMU configuration. Full Ubuntu generic
-builds and application benchmarks have not been tested. The unmodified build
-has an unrelated unused-variable warning in `init/do_mounts.c:464`.
+The custom builds use a minimal x86-64 QEMU config. I haven't tested the full
+Ubuntu generic build or application benchmarks. The unmodified build warns
+about an unused variable in `init/do_mounts.c:464`.
 
-Could you provide the commit for the verified linux-bluefield fix already
-recorded here, and confirm whether it should be carried to Noble generic and
-Jammy HWE? I have not identified that commit or independently checked Jammy's
-source package.
+I also checked [Bluefield tag `Ubuntu-bluefield-6.8.0-1035.40`](https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble/plain/io_uring/kbuf.c?h=Ubuntu-bluefield-6.8.0-1035.40),
+at release commit `f5285baaf0cbec83f2841e900a4f7cfaf5adf485`. Its corrected
+`kbuf.c` matches the file produced by these three changes.
 
-Suggested attachments: `pbuf_reserved.c`, the proposed patch, and the
+Could you point me to the individual fix commit and confirm whether it should
+be carried to Noble generic and Jammy HWE? I haven't checked Jammy's source.
+
+Attachments: `pbuf_reserved.c`, the proposed patch,
 `results/unpatched.log`, `results/corrected.log` and `results/kernel.config`.
